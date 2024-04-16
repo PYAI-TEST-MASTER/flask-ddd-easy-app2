@@ -224,8 +224,8 @@ def upload_file():
             VGG16_NORMAL_RESULT =           "転移学習VGG16正規  ：クローズ数／枚数　"+ str(vgg16_normal_count)+"/"+ str(len(files))+"   "+ vgg16_normal_drowsiness_level+vgg16_normal_status[:10]        
         return render_template("index.html",answer=VGG16_RESULT,answer2 = VGG16_NORMAL_RESULT) 
     return render_template("index.html",answer="")
-if __name__ == "__main__":
-    app.run()
 # if __name__ == "__main__":
-#     port = int(os.environ.get('PORT', 8080))
-#     app.run(host ='0.0.0.0',port = port)
+#     app.run()
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host ='0.0.0.0',port = port)
