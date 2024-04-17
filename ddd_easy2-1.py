@@ -6,7 +6,7 @@ from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.preprocessing import image
 
 import numpy as np
-
+from time import sleep
 
 #classes = ["0","1","2","3","4","5","6","7","8","9"]
 image_size = 28
@@ -30,58 +30,7 @@ HAAR_FILE = R"./haarcascade_eye_tree_eyeglasses.xml"
 cascade = cv2.CascadeClassifier(HAAR_FILE)
 
 @app.route('/', methods=['GET', 'POST'])
-# 画像を一枚受け取り、OPEN_EYEかCLOSE_EYEを判定して返す関数
-# def pred_gender(img):
-#     img = cv2.resize(img, (82,82))
-#     img = img.astype('float32') / 255
-#     img = np.expand_dims(img, axis=0)
-#     pred = model.predict(img)
-#     if np.argmax(pred) == 0:
-#         return 'OPEN_EYE'
-#     else:
-#         return 'CLOSE_EYE'
 
-
-
-# def upload_file():
-#     if request.method == 'POST':
-#         if 'file' not in request.files:
-#             flash('ファイルがありません')
-#             return redirect(request.url)
-#         file = request.files['file']
-#         if file.filename == '':
-#             flash('ファイルがありません')
-#             return redirect(request.url)
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(UPLOAD_FOLDER, filename))
-#             filepath = os.path.join(UPLOAD_FOLDER, filename)
-
-#             #受け取った画像を読み込み、np形式に変換
-#             img = cv2.imread(filepath)
-#             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-#             img = cv2.resize(img_rgb, (82,82))
-#             img = img.astype('float32') / 255
-#             img = np.expand_dims(img, axis=0)
-#             pred = model.predict(img)
-#             if np.argmax(pred) == 0:
-#                 result = 'OPEN_EYE'    
-#             else:
-#                 result = 'CLOSE_EYE'
-
-# #            plt.imshow(img)
-# #            plt.show()
-# #            print(pred_gender(img)) 
-# #            img = image.img_to_array(img)
-# #            data = np.array([img])
-# #            #変換したデータをモデルに渡して予測する
-# #            result = model.predict(data)[0]
-# #            predicted = result.argmax()
-#             pred_answer = "これは " + result + " です"
-
-#             return render_template("index.html",answer=pred_answer)
-
-#     return render_template("index.html",answer="")
 def upload_file():
     vgg16_count = 0
     vgg16_normal_count = 0
@@ -184,6 +133,7 @@ def upload_file():
                 cv2.imwrite(filepath, face)
                 pred_answer = 'vgg16:'+file.filename+ "は、" + result_vgg16
                 print(pred_answer)
+                sleep(1)
     #
     #           VGG16 NORMALIZATION
     #
@@ -199,6 +149,7 @@ def upload_file():
                 print(pred_answer)
                 pred_answer = file.filename+ "は、" + result
                 print(pred_answer)
+                sleep(1)
     #           vgg16
                 if result_vgg16 == "CLOSE_EYE":
                     vgg16_count = vgg16_count +1
@@ -220,8 +171,8 @@ def upload_file():
                 vgg16_normal_status += 'C'
                 vgg16_drowsiness_level = get_drowsiness_level(vgg16_count,len(files))
                 vgg16_normal_drowsiness_level = get_drowsiness_level(vgg16_normal_count,len(files))
-            VGG16_RESULT =                  "転移学習VGG16非正規：クローズ数／枚数　"+ str(vgg16_count)+"/"+ str(len(files))+"   " + vgg16_drowsiness_level +vgg16_status[:10]
-            VGG16_NORMAL_RESULT =           "転移学習VGG16正規  ：クローズ数／枚数　"+ str(vgg16_normal_count)+"/"+ str(len(files))+"   "+ vgg16_normal_drowsiness_level+vgg16_normal_status[:10]        
+            VGG16_RESULT =                  "転移学習VGG16非正規：クローズ数／枚数　"+ str(vgg16_count)+"/"+ str(len(files))+"   " + vgg16_drowsiness_level +vgg16_status[:20]
+            VGG16_NORMAL_RESULT =           "転移学習VGG16正規  ：クローズ数／枚数　"+ str(vgg16_normal_count)+"/"+ str(len(files))+"   "+ vgg16_normal_drowsiness_level+vgg16_normal_status[:20]        
         return render_template("index.html",answer=VGG16_RESULT,answer2 = VGG16_NORMAL_RESULT) 
     return render_template("index.html",answer="")
 # if __name__ == "__main__":
