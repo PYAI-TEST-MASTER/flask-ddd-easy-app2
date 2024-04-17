@@ -20,8 +20,8 @@ app = Flask(__name__)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-#model = load_model('./model.h5')#学習済みモデルをロード
-###1 model_vgg16 = load_model('./modelvgg16_64_18_adam.h5')#学習済みモデルをロード
+
+### model_vgg16 = load_model('./modelvgg16_64_18_adam.h5')#学習済みモデルをロード
 model_vgg16_normal = load_model('./modelvgg16_64_18_adam_N.h5')#学習済みモデルをロード
 #カスケード型分類器に使用する分類器のデータ（xmlファイル）を読み込み
 HAAR_FILE = R"./haarcascade_eye_tree_eyeglasses.xml"
@@ -65,7 +65,7 @@ def upload_file():
             filepath = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(filepath)
             face = cv2.imread(filepath,0)
-
+            os.remove(filepath)
             eye = cascade.detectMultiScale(face)
  
             #顔の座標を表示する
@@ -103,7 +103,7 @@ def upload_file():
 ###1                cv2.imwrite(filepath, eye_cut)
                 filepath = 'face_'+file.filename
                 filepath = os.path.join(INTERMEDIATE_FOLODER, filepath)
-                cv2.imwrite(filepath, face)
+#                cv2.imwrite(filepath, face)
                 #ヒストグラム平坦化
                 eye_cut_hist = cv2.equalizeHist(eye_cut)
 ###1                cv2.imwrite(filepath, eye_cut_hist)        
@@ -142,7 +142,7 @@ def upload_file():
                     result_vgg16_normal = 'CLOSE_EYE'
                 filepath = 'face_vgg16_normal'+result_vgg16_normal+file.filename
                 filepath = os.path.join(INTERMEDIATE_FOLODER, filepath)
-                cv2.imwrite(filepath, face)
+#                cv2.imwrite(filepath, face)
                 pred_answer = 'vgg16_normal:'+file.filename+ "は、" + result_vgg16_normal
                 print(pred_answer)
                 sleep(1)
