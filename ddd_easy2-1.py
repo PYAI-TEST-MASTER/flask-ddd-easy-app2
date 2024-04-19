@@ -4,11 +4,9 @@ from flask import Flask, request, redirect, render_template, flash
 from werkzeug.utils import secure_filename
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.preprocessing import image
-
 import numpy as np
 from time import sleep
 
-#classes = ["0","1","2","3","4","5","6","7","8","9"]
 image_size = 28
 
 UPLOAD_FOLDER = "uploads"
@@ -36,6 +34,7 @@ def upload_file():
     vgg16_normal_status = ''
     vgg16_drowsiness_level = ''
     vgg16_normal_drowsiness_level = ''
+    history_on = 0
     if request.method == 'POST':
         if 'files' not in request.files:
             flash('ファイルがありません')
@@ -71,13 +70,13 @@ def upload_file():
             #顔の座標を表示する
 
             if eye is None:
-                print('CLOSE_EYE')
-                continue
+                print('CLOSE1_EYE')
+                skip_flag = 1
             try:
                 x,y,w,h = eye[0]
                 skip_flag = 0
             except IndexError:
-                print('CLOSE_EYE')
+                print('CLOSE2_EYE')
                 skip_flag = 1
             if skip_flag == 0:      
                 # if eye[0] is None:
@@ -100,10 +99,12 @@ def upload_file():
                 #画像の出力
                 filepath = "eye_"+file.filename
                 filepath = os.path.join(INTERMEDIATE_FOLODER, filepath)
-###1                cv2.imwrite(filepath, eye_cut)
+                if history_on == 1:
+                    cv2.imwrite(filepath, eye_cut)
                 filepath = 'face_'+file.filename
                 filepath = os.path.join(INTERMEDIATE_FOLODER, filepath)
-#                cv2.imwrite(filepath, face)
+                if history_on == 1:
+                    cv2.imwrite(filepath, face)
                 #ヒストグラム平坦化
                 eye_cut_hist = cv2.equalizeHist(eye_cut)
 ###1                cv2.imwrite(filepath, eye_cut_hist)        
@@ -112,12 +113,6 @@ def upload_file():
                 img = cv2.resize(img_rgb, (82,82))
                 img = img.astype('float32') / 255
                 img = np.expand_dims(img, axis=0)
-                # pred = model_vgg16.predict(img)
-                # if np.argmax(pred) == 0:
-                #     result = 'OPEN_EYE'    
-
-                # else:
-                #     result = 'CLOSE_EYE'
     #
     #           VGG16
     #
@@ -168,9 +163,10 @@ def upload_file():
                 # vgg16_drowsiness_level = get_drowsiness_level(vgg16_count,len(files))
                 vgg16_normal_drowsiness_level = get_drowsiness_level(vgg16_normal_count,len(files))
             # VGG16_RESULT =                  "転移学習VGG16(非正規)：クローズ数／枚数　"+ str(vgg16_count)+"/"+ str(len(files))+"   " + vgg16_drowsiness_level +vgg16_status[:20]
-            VGG16_NORMAL_RESULT =           "転移学習VGG16(正規化)  ：クローズ数／枚数　"+ str(vgg16_normal_count)+"/"+ str(len(files))+"   "+ vgg16_normal_drowsiness_level+vgg16_normal_status[:20]        
+            VGG16_NORMAL_RESULT =           "■転移学習VGG16(正規化)  ：クローズ数／枚数　"+ str(vgg16_normal_count)+"/"+ str(len(files))+"   ★判定結果："+ vgg16_normal_drowsiness_level+"　　下記は各画像の判定結果(O:OPEN_EYE/C:CLOSE_EYE)"
+
 #        return render_template("index.html",answer=VGG16_RESULT,answer2 = VGG16_NORMAL_RESULT) 
-        return render_template("index.html",answer2 = VGG16_NORMAL_RESULT) 
+        return render_template("index.html",answer = VGG16_NORMAL_RESULT ,answer2 = vgg16_normal_status) 
 
     return render_template("index.html",answer="")
 # if __name__ == "__main__":
